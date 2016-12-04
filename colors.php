@@ -65,8 +65,21 @@ function save_color($hex, $tweet_id) {
   $db->query("
     INSERT INTO color
     (hex, tweet_id, created)
-    VALUES (?, ?)
+    VALUES (?, ?, ?)
   ", array($hex, $tweet_id, $now));
+}
+
+function gather_tweet_stats() {
+  global $db;
+  echo "Gathering tweet stats\n";
+  $tweet_id = $db->get_value("
+    SELECT tweet_id
+    FROM color
+    WHERE tweet_id NOT NULL
+    ORDER BY tweet_id
+    LIMIT 1
+  ");
+  
 }
 
 $hex = choose_color();
@@ -86,5 +99,7 @@ if (empty($tweet->errors)) {
 if (file_exists("$hex.png")) {
   unlink("$hex.png");
 }
+
+//gather_tweet_stats();
 
 ?>
