@@ -42,7 +42,6 @@ class Twitter {
       $url = $this->add_args($url, $args);
       curl_setopt($this->curl, CURLOPT_HTTPGET, true);
     } else if ($method === 'POST') {
-      
       curl_setopt($this->curl, CURLOPT_POST, true);
       if (empty($update_with_media)) {
         curl_setopt($this->curl, CURLOPT_POSTFIELDS, $this->get_args($args));
@@ -61,21 +60,19 @@ class Twitter {
   }
   
   function upload_media($args) {
+    $path = $args['media[]'];
+    if (function_exists('finfo_open')) {
+      $finfo = finfo_open(FILEINFO_MIME_TYPE);
+      $type = finfo_file($finfo, $path);
+      finfo_close($finfo);
+    }
+    if (!file_exists($path) || empty($type)) {
+      return $args;
+    }
     if (version_compare(PHP_VERSION, '5.5.0', '>=')) {
-      // Handle upload for PHP 5.5
+      $args['media[]'] = new CurlFile($path, $type);
     } else {
-      $path = $args['media[]'];
-      if (file_exists($path)) {
-        $args['media[]'] = "@$path";
-        if (function_exists('finfo_open')) {
-          $finfo = finfo_open(FILEINFO_MIME_TYPE);
-          $type = finfo_file($finfo, $path);
-          finfo_close($finfo);
-          $args['media[]'] = "@$path;type=$type";
-        }
-      } else {
-        unset($args['media[]']);
-      }
+      $args['media[]'] = "@$path;type=$type";
     }
     return $args;
   }
@@ -86,8 +83,7 @@ class Twitter {
       curl_setopt_array($this->curl, array(
         CURLOPT_HEADER => false,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_SSL_VERIFYPEER => false
+        CURLOPT_FOLLOWLOCATION => true
       ));
     }
   }
