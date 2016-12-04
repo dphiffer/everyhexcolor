@@ -33,7 +33,7 @@ function tweet_color($hex) {
   ));
   //print_r($tweet);
   //print_r($twitter);
-  return empty($tweet->errors);
+  return $tweet;
 }
 
 function generate_image($hex) {
@@ -59,14 +59,14 @@ function generate_image($hex) {
   return "$hex.png";
 }
 
-function save_color($hex) {
+function save_color($hex, $tweet_id) {
   global $db;
   $now = gmdate('Y-m-d H:i:s');
   $db->query("
     INSERT INTO color
-    (hex, created)
+    (hex, tweet_id, created)
     VALUES (?, ?)
-  ", array($hex, $now));
+  ", array($hex, $tweet_id, $now));
 }
 
 $hex = choose_color();
@@ -78,8 +78,9 @@ if (!file_exists($filename)) {
   die("Could not generate image $filename.");
 }
 
-if (tweet_color($hex)) {
-  save_color($hex);
+$tweet = tweet_color($hex);
+if (empty($tweet->errors)) {
+  save_color($hex, $tweet->id);
 }
 
 if (file_exists("$hex.png")) {
