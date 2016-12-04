@@ -56,6 +56,7 @@ function generate_image($hex) {
   //imageline($im, 0, 131, 526, 131, $text_color);
   imagepng($im, "$hex.png");
   imagedestroy($im);
+  return "$hex.png";
 }
 
 function save_color($hex) {
@@ -72,7 +73,11 @@ $hex = choose_color();
 while (color_exists($hex)) {
   $hex = choose_color();
 }
-generate_image($hex);
+$filename = generate_image($hex);
+if (!file_exists($filename)) {
+  die("Could not generate image $filename.");
+}
+
 if (tweet_color($hex)) {
   save_color($hex);
 }
