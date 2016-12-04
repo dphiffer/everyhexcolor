@@ -61,7 +61,7 @@ function generate_image($hex) {
 
 function save_color($hex) {
   global $db;
-  $now = date('Y-m-d H:i:s');
+  $now = gmdate('Y-m-d H:i:s');
   $db->query("
     INSERT INTO color
     (hex, created)
