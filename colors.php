@@ -2,7 +2,10 @@
 
 require_once 'twitter.php';
 require_once 'database.php';
+require_once 'config.php';
+
 $db = new Database('colors.db', 'setup.php');
+$twitter = new Twitter($app, $token);
 
 error_reporting(E_ALL);
 ini_set('error_log', __DIR__ . '/logs/error.log');
@@ -25,8 +28,7 @@ function color_exists($hex) {
 }
 
 function tweet_color($hex) {
-  include __DIR__ . '/config.php';  
-  $twitter = new Twitter($app, $token);
+  global $twitter;
   $tweet = $twitter->post('statuses/update_with_media.json', array(
     'status' => "#$hex",
     'media[]' => __DIR__ . "/$hex.png"
@@ -70,8 +72,7 @@ function save_color($hex, $tweet_id) {
 }
 
 function gather_tweet_stats() {
-  global $db;
-  echo "Gathering tweet stats\n";
+  global $db, $twitter;
   $tweet_id = $db->get_value("
     SELECT tweet_id
     FROM color
@@ -79,7 +80,30 @@ function gather_tweet_stats() {
     ORDER BY tweet_id
     LIMIT 1
   ");
-  
+  $rsp = $twitter->get('statuses/user_timeline.json', array(
+    'screen_name' => 'everyhexcolor',
+    'max_id' => ($tweet_id - 1),
+    'count' => 200,
+    'trim_user' => 1
+  ));
+  foreach ($rsp as $tweet) {
+    if (!preg_match('/^#(\w{6})/', $tweet->text, $matches)) {
+      continue;
+    }
+    $tweet_id = $tweet->id_str;
+    $faves = $tweet->favorite_count;
+    $retweets = $tweet->retweet_count;
+    $interactions = $faves + $retweets;
+    $hex = $matches[1];
+    $db->query("
+      UPDATE color
+      SET tweet_id = ?,
+          faves = ?,
+          retweets = ?,
+          interactions = ?
+      WHERE hex = ?
+    ", array($tweet_id, $faves, $retweets, $interactions, $hex));
+  }
 }
 
 $hex = choose_color();
@@ -100,6 +124,6 @@ if (file_exists("$hex.png")) {
   unlink("$hex.png");
 }
 
-//gather_tweet_stats();
+gather_tweet_stats();
 
 ?>
