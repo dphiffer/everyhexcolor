@@ -94,15 +94,17 @@ function gather_tweet_stats() {
     $faves = $tweet->favorite_count;
     $retweets = $tweet->retweet_count;
     $interactions = $faves + $retweets;
+    $updated = gmdate('Y-m-d H:i:s');
     $hex = $matches[1];
     $db->query("
       UPDATE color
       SET tweet_id = ?,
           faves = ?,
           retweets = ?,
-          interactions = ?
+          interactions = ?,
+          updated = ?
       WHERE hex = ?
-    ", array($tweet_id, $faves, $retweets, $interactions, $hex));
+    ", array($tweet_id, $faves, $retweets, $interactions, $updated, $hex));
   }
 }
 

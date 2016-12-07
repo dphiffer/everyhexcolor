@@ -7,7 +7,8 @@ $this->query("
     faves INTEGER,
     retweets INTEGER,
     interactions INTEGER,
-    created DATETIME
+    created DATETIME,
+    updated DATETIME
   );
 ");
 
