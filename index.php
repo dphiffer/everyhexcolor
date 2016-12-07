@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>36 popular colors</title>
+		<title>255 popular hex colors</title>
 		<link rel="stylesheet" href="vera_sans/web/stylesheet.css">
 		<link rel="stylesheet" href="everyhexcolor.css">
 	</head>
