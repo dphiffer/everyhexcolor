@@ -49,3 +49,10 @@ function generate_image($hex) {
 	imagepng($im);
 }
 ```
+
+## Thanks to
+
+* [Kate Compton](http://www.galaxykate.com/)
+* [George Buckenham](https://v21.io/)
+* [Darius Kazemi](http://tinysubversions.com/)
+* [Allison Parrish](http://air.decontextualize.com/tracery/)
